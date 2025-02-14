@@ -1,0 +1,95 @@
+{% extends 'layout.html' %}
+
+{% block title %}Quiz Result{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <h1 class="text-4xl font-extrabold text-center text-gray-900 mb-8 animate-fade-in">
+        Your Result for the Quiz: <span class="text-indigo-600">{{ quiz.title }}</span>
+    </h1>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 animate-fade-in" role="alert">
+                <span class="block sm:inline">{{ message }}</span>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="bg-white p-8 rounded-xl shadow-lg transform transition-all duration-300 hover:shadow-2xl">
+        <p class="text-xl font-semibold text-gray-800 mb-2">
+            Score: <span class="text-indigo-600 font-bold">{{ result }}</span> out of <span class="text-indigo-600 font-bold">{{ total_questions }}</span>
+        </p>
+        <p class="text-gray-500 text-sm mb-6">Quiz Taken On: {{ results.last.taken_at|date:"F j, Y, g:i a" }}</p>
+        
+        <div class="mt-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Detailed Results:</h2>
+            <ul class="space-y-4">
+                {% for result in results %}
+                    <li class="flex flex-col p-4 rounded-lg transition-all duration-200 {{ result.is_correct|yesno:'bg-green-50 hover:bg-green-100, bg-red-50 hover:bg-red-100' }}">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-700">{{ result.question.text }}</span>
+                            <span class="text-sm font-semibold {{ result.is_correct|yesno:'text-green-600, text-red-600' }}">
+                                {% if result.is_correct %}
+                                    <span class="flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        Correct
+                                    </span>
+                                {% else %}
+                                    <span class="flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                        Incorrect
+                                    </span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        <!-- Show user's answer and correct answer -->
+                        <div class="mt-3 text-sm text-gray-600">
+                            <p class="mb-1">
+                                <span class="font-semibold">Your Answer:</span> 
+                                <span class="{{ result.is_correct|yesno:'text-green-600, text-red-600' }}">{{ result.choice.text }}</span>
+                            </p>
+                            {% if not result.is_correct %}
+                                <p>
+                                    <span class="font-semibold">Correct Answer:</span> 
+                                    <span class="text-green-600">{{ result.correct_answer.text }}</span>
+                                </p>
+                            {% endif %}
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="mt-10 text-center animate-fade-in-up">
+        <a href="{% url 'quiz_list' %}" class="inline-block bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-indigo-600 transition-all duration-300 transform hover:scale-105">
+            Back to Quizzes
+        </a>
+    </div>
+</div>
+
+<style>
+    @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes fade-in-up {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fade-in {
+        animation: fade-in 0.5s ease-in-out;
+    }
+
+    .animate-fade-in-up {
+        animation: fade-in-up 0.5s ease-in-out;
+    }
+</style>
+{% endblock %}

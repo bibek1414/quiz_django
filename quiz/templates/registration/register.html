@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="max-w-sm mx-auto bg-white p-6 shadow-lg rounded-xl mt-12">
+    <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Create an Account</h2>
+    <form method="post">
+        {% csrf_token %}
+        {% if form.errors %}
+            <div class="mb-4 p-4 bg-red-100 text-red-700 rounded">
+                <ul>
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        <div class="mb-4">
+            <label for="id_username" class="block text-sm font-medium text-gray-700">Username</label>
+            <input type="text" name="username" id="id_username" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md" required>
+        </div>
+        <div class="mb-4">
+            <label for="id_password1" class="block text-sm font-medium text-gray-700">Password</label>
+            <input type="password" name="password1" id="id_password1" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md" required>
+        </div>
+        <div class="mb-4">
+            <label for="id_password2" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+            <input type="password" name="password2" id="id_password2" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md" required>
+        </div>
+        <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-purple-700 text-white px-4 py-2 rounded-md font-semibold hover:from-teal-600 hover:to-teal-700 transition-all duration-300">
+            Register
+        </button>
+        Already have an account? <a href="{% url 'login' %}" class="text-teal-600 font-semibold">Login here</a>
+    </p>
+</div>
+{% endblock %}

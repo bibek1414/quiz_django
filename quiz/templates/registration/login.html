@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="max-w-sm mx-auto bg-white p-6 shadow-lg rounded-xl mt-12">
+    <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Login to Your Account</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label for="id_username" class="block text-sm font-medium text-gray-700">Username</label>
+            <input type="text" name="username" id="id_username" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md" required>
+        </div>
+        <div class="mb-4">
+            <label for="id_password" class="block text-sm font-medium text-gray-700">Password</label>
+            <input type="password" name="password" id="id_password" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md" required>
+        </div>
+        <button type="submit" class="w-full bg-gradient-to-r from-teal-500 to-teal-600 text-white px-4 py-2 rounded-md font-semibold hover:from-teal-600 hover:to-teal-700 transition-all duration-300">
+            Login
+        </button>
+    </form>
+    <p class="mt-4 text-center text-sm text-gray-600">
+        Don't have an account? <a href="{% url 'register' %}" class="text-teal-600 font-semibold">Register here</a>
+    </p>
+</div>
+{% endblock %}
