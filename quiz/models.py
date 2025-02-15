@@ -30,7 +30,7 @@ class Result(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
+    choice = models.ForeignKey(Choice, on_delete=models.CASCADE, default='')
     is_correct = models.BooleanField(default=False)
     taken_at = models.DateTimeField(default=timezone.now)
 

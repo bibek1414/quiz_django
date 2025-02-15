@@ -19,33 +19,32 @@
         <div class="bg-white p-8 mb-4 rounded-xl shadow-lg border border-purple-100">
             <h3 id="question" class="text-2xl font-bold text-gray-800 mb-8">{{ question.text }}</h3>
             
-            <div id="choices-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-4">
                 {% for choice in question.choices.all %}
-                    <div class="choice-wrapper opacity-0 scale-95 transition-all duration-500 ease-out"
-                         style="transition-delay: {{ forloop.counter0 }}00ms">
-                        <div class="flex items-center w-full cursor-pointer choice-div" 
-                             data-choice-id="{{ choice.id }}"
-                             data-is-correct="{{ choice.is_correct|yesno:'true,false' }}">
-                            <div class="w-full py-4 px-6 bg-gradient-to-r from-indigo-600 to-purple-700 text-white text-lg font-semibold rounded-xl 
-                                      hover:scale-105 hover:shadow-lg transition-all duration-300 ease-out
-                                      choice-button">
-                                <span class="choice-label inline-flex items-center justify-center w-8 h-8 
-                                           rounded-full bg-white text-indigo-600 font-bold mr-3">
-                                    {% if forloop.counter == 1 %}A{% endif %}
-                                    {% if forloop.counter == 2 %}B{% endif %}
-                                    {% if forloop.counter == 3 %}C{% endif %}
-                                    {% if forloop.counter == 4 %}D{% endif %}
-                                </span>
-                                {{ choice.text }}
-                            </div>
+                <div class="choice-wrapper opacity-0 scale-95 transition-all duration-500 ease-out"
+                     style="transition-delay: {{ forloop.counter }}00ms">
+                    <div class="flex items-center w-full cursor-pointer choice-div" 
+                         data-choice-id="{{ choice.id }}"
+                         data-is-correct="{{ choice.is_correct|yesno:'true,false' }}">
+                        <div class="w-full p-4 bg-gradient-to-r from-indigo-600 to-purple-700 text-white text-lg font-semibold rounded-xl 
+                                  hover:scale-105 hover:shadow-lg transition-all duration-300 ease-out choice-button flex items-center">
+                            <span class="choice-label inline-flex items-center justify-center w-8 h-8 
+                                       rounded-full bg-white text-indigo-600 font-bold mr-4">
+                                {% if forloop.counter == 1 %}A{% endif %}
+                                {% if forloop.counter == 2 %}B{% endif %}
+                                {% if forloop.counter == 3 %}C{% endif %}
+                                {% if forloop.counter == 4 %}D{% endif %}
+                            </span>
+                            <span class="flex-grow">{{ choice.text }}</span>
                         </div>
                     </div>
+                </div>
                 {% endfor %}
             </div>
 
             <div class="mt-8 text-center opacity-0 scale-95 transition-all duration-500 ease-out"
                  id="submit-wrapper"
-                 style="transition-delay: {{ question.choices.count }}00ms">
+                 style="transition-delay: 500ms">
                 <button type="button" 
                         id="lock-button"
                         disabled
@@ -55,15 +54,15 @@
                     Lock Answer
                 </button>
                 <button type="submit" 
-        id="next-button"
-        class="hidden bg-gradient-to-r from-cyan-500 to-cyan-700 text-white px-8 py-3 rounded-lg font-semibold 
-               hover:from-cyan-600 hover:to-cyan-800 hover:shadow-lg transition-all duration-300 ml-4">
-    {% if current_question_index == total_questions|add:"-1" %}
-        Finish Quiz
-    {% else %}
-        Next Question
-    {% endif %}
-    </button>
+                        id="next-button"
+                        class="hidden bg-gradient-to-r from-cyan-500 to-cyan-700 text-white px-8 py-3 rounded-lg font-semibold 
+                               hover:from-cyan-600 hover:to-cyan-800 hover:shadow-lg transition-all duration-300 ml-4">
+                    {% if current_question_index == total_questions|add:"-1" %}
+                        Finish Quiz
+                    {% else %}
+                        Next Question
+                    {% endif %}
+                </button>
             </div>
         </div>
     </form>
@@ -88,10 +87,44 @@
     </div>
 </div>
 
-<audio id="timer-sound" src="{% static 'sounds/timer_sound.mp3' %}" loop preload="auto"></audio>
+<!-- Audio elements -->
+<audio id="timer-sound" src="{% static '/sounds/timer1.mp3' %}" loop preload="auto"></audio>
 <audio id="lock-sound" src="{% static 'sounds/lock.mp3' %}" preload="auto"></audio>
 <audio id="correct-sound" src="{% static 'sounds/correct.mp3' %}" preload="auto"></audio>
 <audio id="wrong-sound" src="{% static 'sounds/wrong.mp3' %}" preload="auto"></audio>
+
+<style>
+    .choice-button {
+        display: flex;
+        align-items: center;
+        min-height: 64px;
+        padding: 1rem 1.5rem;
+    }
+
+    .choice-label {
+        flex-shrink: 0;
+        width: 2rem;
+        height: 2rem;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    .animate-pulse {
+        animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+</style>
 
 <script>
     let timeLimit = {{ time_limit }};
@@ -109,7 +142,7 @@
     let selectedChoiceInput = document.getElementById('selected_choice_input');
     let timerInterval;
     let isAnswerLocked = false;
-    let answerSelected = false; // Track if an answer has been selected
+    let answerSelected = false;
 
     // Animation observer setup
     const observerOptions = { threshold: 0.5 };
@@ -123,6 +156,7 @@
         });
     }, observerOptions);
 
+    // Apply fade-in animation
     document.querySelectorAll('.animate-fade-in').forEach((el) => {
         fadeInObserver.observe(el);
     });
@@ -154,6 +188,9 @@
             if (timeLimit <= 10) {
                 timer.classList.remove('text-indigo-600');
                 timer.classList.add('text-red-600', 'animate-pulse');
+                if (audio && audio.paused) {
+                    audio.play().catch(e => console.log('Sound play prevented'));
+                }
             }
         } else if (!isAnswerLocked) {
             clearInterval(timerInterval);
@@ -162,9 +199,7 @@
                 audio.currentTime = 0;
             }
             
-            // Check if an answer was selected
             if (!answerSelected) {
-                // Highlight the correct answer
                 document.querySelectorAll('.choice-div').forEach(choice => {
                     if (choice.dataset.isCorrect === 'true') {
                         const button = choice.querySelector('.choice-button');
@@ -174,10 +209,9 @@
                 });
             }
             
-            // Submit the form after showing the correct answer
             setTimeout(() => {
                 document.getElementById('quiz-form').submit();
-            }, 2000); // Delay submission to allow users to see the correct answer
+            }, 2000);
         }
     }
 
@@ -188,18 +222,16 @@
     document.querySelectorAll('.choice-div').forEach(choice => {
         choice.addEventListener('click', function() {
             if (!isAnswerLocked) {
-                // Reset all choices to default state
                 document.querySelectorAll('.choice-div').forEach(c => {
                     c.querySelector('.choice-button').classList.remove('from-blue-500', 'to-blue-700');
                     c.querySelector('.choice-button').classList.add('from-indigo-600', 'to-purple-700');
                 });
 
-                // Highlight selected choice
                 this.querySelector('.choice-button').classList.remove('from-indigo-600', 'to-purple-700');
                 this.querySelector('.choice-button').classList.add('from-blue-500', 'to-blue-700', 'scale-105');
                 
                 selectedChoice = this;
-                answerSelected = true; // Mark that an answer has been selected
+                answerSelected = true;
                 lockButton.disabled = false;
                 selectedChoiceInput.value = this.dataset.choiceId;
             }
@@ -212,7 +244,6 @@
             const optionLabel = selectedChoice.querySelector('.choice-label').textContent;
             selectedOptionText.textContent = `Option ${optionLabel}`;
             lockModal.classList.remove('hidden');
-            lockModal.querySelector('.bg-white').classList.add('scale-100');
         }
     }
 
@@ -222,10 +253,10 @@
 
     function confirmAnswer() {
         isAnswerLocked = true;
-        clearInterval(timerInterval); // Stop the timer
+        clearInterval(timerInterval);
         if (audio) {
-            audio.pause(); // Stop the timer sound
-            audio.currentTime = 0; // Reset the sound to the beginning
+            audio.pause();
+            audio.currentTime = 0;
         }
         closeLockModal();
         
@@ -233,23 +264,22 @@
             lockSound.play().catch(e => console.log('Sound play prevented'));
         }
 
-        // Disable all choices
         document.querySelectorAll('.choice-div').forEach(choice => {
             choice.classList.remove('cursor-pointer');
             choice.classList.add('cursor-not-allowed');
         });
 
-        // Show correct/wrong answers
         const isCorrect = selectedChoice.dataset.isCorrect === 'true';
-        
-        // Color the selected choice
         const selectedButton = selectedChoice.querySelector('.choice-button');
         selectedButton.classList.remove('from-blue-500', 'to-blue-700', 'from-indigo-600', 'to-purple-700');
+        
         if (isCorrect) {
             selectedButton.classList.add('from-green-500', 'to-green-700');
+            if (correctSound) {
+                correctSound.play().catch(e => console.log('Sound play prevented'));
+            }
         } else {
             selectedButton.classList.add('from-red-500', 'to-red-700');
-            // Show correct answer
             document.querySelectorAll('.choice-div').forEach(choice => {
                 if (choice.dataset.isCorrect === 'true') {
                     const button = choice.querySelector('.choice-button');
@@ -257,56 +287,21 @@
                     button.classList.add('from-green-500', 'to-green-700');
                 }
             });
+            if (wrongSound) {
+                wrongSound.play().catch(e => console.log('Sound play prevented'));
+            }
         }
 
-        // Play sound based on correctness
-        if (isCorrect && correctSound) {
-            correctSound.play().catch(e => console.log('Sound play prevented'));
-        } else if (!isCorrect && wrongSound) {
-            wrongSound.play().catch(e => console.log('Sound play prevented'));
-        }
-
-        // Show next button
         lockButton.classList.add('hidden');
         nextButton.classList.remove('hidden');
     }
 
-    // Button event listeners
     lockButton.addEventListener('click', showLockModal);
 
     // Start timer sound
     if (audio) {
-        audio.volume = 0.3;
-        try {
-            audio.play().catch(e => console.log('Audio autoplay prevented'));
-        } catch (e) {
-            console.log('Audio playback error:', e);
-        }
+        audio.volume = 1;
+        audio.play().catch(e => console.log('Audio autoplay prevented'));
     }
 </script>
-
-<style>
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .animate-fade-in {
-        animation: fadeIn 0.8s ease-out;
-    }
-
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
-    }
-
-    .animate-pulse {
-        animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-
-    .choice-button {
-        display: flex;
-        align-items: center;
-    }
-</style>
 {% endblock %}

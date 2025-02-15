@@ -1,20 +1,310 @@
 {% extends "layout.html" %}
-
 {% block title %}Available Quizzes{% endblock %}
-
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <h1 class="text-4xl font-extrabold text-center text-gray-900 mb-8">Available Quizzes</h1>
+<style>
+    /* Base Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 
+    @keyframes floatingCards {
+        0% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+        100% {
+            transform: translateY(0px);
+        }
+    }
+
+    @keyframes gradientFlow {
+        0% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+
+    @keyframes shimmer {
+        0% {
+            background-position: -1000px 0;
+        }
+        100% {
+            background-position: 1000px 0;
+        }
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        50% {
+            transform: scale(1.05);
+            opacity: 0.8;
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    /* Page Title Styles */
+    .page-title {
+        animation: fadeInUp 0.8s ease-out;
+        background-size: 200% auto;
+        background-image: linear-gradient(120deg, #4f46e5, #9333ea, #4f46e5);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        position: relative;
+        display: inline-block;
+        text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        animation: gradientFlow 3s infinite alternate;
+    }
+
+    /* Card Styles */
+    .quiz-card {
+        animation: fadeInUp 0.8s ease-out;
+        animation-fill-mode: both;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: linear-gradient(145deg, #ffffff, #f8fafc);
+        border: 1px solid rgba(229, 231, 235, 0.5);
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    .quiz-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #4f46e5, #9333ea);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+        z-index: 2;
+    }
+
+    .quiz-card::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(147, 51, 234, 0.1));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: -1;
+    }
+
+    .quiz-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    .quiz-card:hover::before {
+        transform: scaleX(1);
+    }
+    
+    .quiz-card:hover::after {
+        opacity: 1;
+    }
+
+    .quiz-card:focus-within {
+        outline: 2px solid #4f46e5;
+        outline-offset: 2px;
+    }
+
+    /* Card content layout */
+    .card-content {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        justify-content: space-between;
+    }
+
+    .card-header {
+        margin-bottom: 1rem;
+    }
+
+    .card-body {
+        flex: 1;
+    }
+
+    .card-footer {
+        margin-top: 1.5rem;
+    }
+
+    /* Empty state animation */
+    .empty-state-card {
+        animation: pulse 3s infinite ease-in-out;
+    }
+
+    /* Button Styles */
+    .gradient-button {
+        background: linear-gradient(90deg, #4f46e5, #9333ea, #4f46e5);
+        background-size: 200% auto;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        text-align: center;
+    }
+
+    .gradient-button::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.3) 50%,
+            rgba(255, 255, 255, 0) 100%
+        );
+        transform: rotate(45deg);
+        animation: shimmer 3s infinite;
+        pointer-events: none;
+    }
+
+    .gradient-button:hover {
+        background-position: right center;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
+    .gradient-button:focus {
+        outline: 2px solid #4f46e5;
+        outline-offset: 2px;
+    }
+
+    /* Text Styles */
+    .quiz-card h2 {
+        background: linear-gradient(120deg, #1a1a1a, #4a5568);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        transition: all 0.3s ease;
+    }
+
+    .quiz-card:hover h2 {
+        background: linear-gradient(120deg, #4f46e5, #9333ea);
+        -webkit-background-clip: text;
+        background-clip: text;
+    }
+
+    /* Card Metadata */
+    .card-metadata {
+        display: flex;
+        align-items: center;
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+
+    .quiz-tag {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        background: linear-gradient(90deg, rgba(79, 70, 229, 0.1), rgba(147, 51, 234, 0.1));
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        color: #4f46e5;
+        transition: all 0.3s ease;
+    }
+
+    .quiz-card:hover .quiz-tag {
+        background: linear-gradient(90deg, rgba(79, 70, 229, 0.2), rgba(147, 51, 234, 0.2));
+    }
+
+    /* Fixed Animation Delays */
+    .quiz-card:nth-child(1) { animation-delay: 0.1s; }
+    .quiz-card:nth-child(2) { animation-delay: 0.2s; }
+    .quiz-card:nth-child(3) { animation-delay: 0.3s; }
+    .quiz-card:nth-child(4) { animation-delay: 0.4s; }
+    .quiz-card:nth-child(5) { animation-delay: 0.5s; }
+    .quiz-card:nth-child(6) { animation-delay: 0.6s; }
+    .quiz-card:nth-child(7) { animation-delay: 0.7s; }
+    .quiz-card:nth-child(8) { animation-delay: 0.8s; }
+    .quiz-card:nth-child(9) { animation-delay: 0.9s; }
+    .quiz-card:nth-child(10) { animation-delay: 1s; }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .page-title {
+            font-size: 2.5rem;
+        }
+        .quiz-card {
+            margin-bottom: 1rem;
+        }
+    }
+
+    /* Accessibility - Reduce Motion */
+    @media (prefers-reduced-motion: reduce) {
+        .page-title,
+        .quiz-card,
+        .gradient-button,
+        .empty-state-card {
+            animation: none !important;
+            transition: background-color 0.3s ease !important;
+        }
+        
+        .gradient-button::after {
+            animation: none !important;
+        }
+    }
+</style>
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <h1 class="page-title text-5xl font-extrabold text-center mb-12">Available Quizzes</h1>
+    
     {% if quizzes %}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for quiz in quizzes %}
-                <div class="bg-white p-6 rounded-xl shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-2xl">
-                    <div class="flex flex-col h-full">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-2">{{ quiz.title }}</h2>
-                        <p class="text-gray-500 text-sm mb-4">Created on: {{ quiz.created_at|date:"F d, Y" }}</p>
-                        <div class="mt-auto">
-                            <a href="{% url 'take_quiz' quiz.id %}" class="inline-block w-full text-center bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-indigo-600 transition-all duration-300">
+                <div class="quiz-card rounded-xl shadow-lg p-6">
+                    <div class="card-content">
+                        <div class="card-header">
+                            <h2 class="text-2xl font-bold mb-2">{{ quiz.title }}</h2>
+                            <div class="card-metadata">
+                                <span>Created on: {{ quiz.created_at|date:"F d, Y" }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="card-body">
+                            {% if quiz.tags %}
+                                <div class="flex flex-wrap gap-2 mb-4">
+                                    {% for tag in quiz.tags %}
+                                        <span class="quiz-tag">{{ tag }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            {% if quiz.description %}
+                                <p class="text-gray-600">{{ quiz.description|truncatechars:120 }}</p>
+                            {% endif %}
+                            {% if quiz.question_count %}
+                                <p class="text-sm text-gray-500 mt-3">
+                                    <span>{{ quiz.question_count }} questions</span>
+                                </p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="card-footer">
+                            <a href="{% url 'take_quiz' quiz.id %}" 
+                               class="gradient-button inline-block text-white px-6 py-3 rounded-lg font-semibold transition-all">
                                 Start Quiz
                             </a>
                         </div>
@@ -23,10 +313,37 @@
             {% endfor %}
         </div>
     {% else %}
-        <div class="text-center py-16">
+        <div class="empty-state-card quiz-card text-center py-16 rounded-xl shadow-lg">
+            <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" 
+                      d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
             <p class="text-gray-500 text-xl">No quizzes available right now.</p>
-            <p class="text-gray-400 mt-2">Check back later for new quizzes!</p>
+            <p class="text-gray-400 mt-2 mb-6">Check back later for new quizzes!</p>
+            <a href="javascript:void(0)" onclick="window.location.reload()" 
+               class="gradient-button inline-block text-white px-6 py-3 rounded-lg font-semibold max-w-xs mx-auto">
+                Refresh Page
+            </a>
         </div>
     {% endif %}
 </div>
+
+<script>
+    // Optional: Add hover animation for floating effect
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.quiz-card');
+        
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                if (window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+                    this.style.animation = 'floatingCards 3s ease-in-out infinite';
+                }
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.animation = '';
+            });
+        });
+    });
+</script>
 {% endblock %}
