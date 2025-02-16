@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>{% block title %}Online Quiz System{% endblock %}</title>
     {% tailwind_css %}
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -194,10 +195,17 @@
             </a>
             <div class="flex items-center space-x-4">
                 {% if user.is_authenticated %}
-                    <span class="text-sm font-medium text-gray-800">Hello, {{ user.username }}</span>
+                    <div class="flex items-center bg-white shadow-md rounded-lg p-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14c-4.418 0-8-3.582-8-8s3.582-8 8-8 8 3.582 8 8-3.582 8-8 8zm0 0c4.418 0 8 3.582 8 8s-3.582 8-8 8-8-3.582-8-8 3.582-8 8-8z" />
+                        </svg>
+                        <span class="text-lg font-semibold text-gray-800">Hello, {{ user.username }}</span>
+                    </div>
+                    <a href="{% url 'quiz_history' %}" class="btn-modern">Quiz History</a>
+                    <a href="{% url 'leaderboard' %}" class="btn-modern">Leaderboard</a>
                     <form action="{% url 'logout' %}" method="POST" class="inline">
                         {% csrf_token %}
-                        <button type="submit" class="btn-modern">
+                        <button type="submit" class="btn-modern ">
                             Logout
                         </button>
                     </form>

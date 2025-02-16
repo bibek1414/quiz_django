@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Quiz, Question, Choice, Result
+from .models import Quiz, Question, Choice, Result,Category,DifficultyLevel
 
 # Inline model to add choices directly from the Question admin page
 class ChoiceInline(admin.TabularInline):
@@ -19,3 +19,5 @@ admin.site.register(Quiz)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(Choice)
 admin.site.register(Result)
+admin.site.register(Category)
+admin.site.register(DifficultyLevel)

@@ -1,0 +1,83 @@
+{% extends 'layout.html' %}
+{% block content %}
+<style>
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    animation: fadeIn 0.8s ease-out;
+  }
+  
+  .leaderboard-row {
+    animation: fadeIn 0.5s ease-out;
+    animation-fill-mode: both;
+  }
+  
+  .leaderboard-row:nth-child(1) { animation-delay: 0.1s; }
+  .leaderboard-row:nth-child(2) { animation-delay: 0.2s; }
+  .leaderboard-row:nth-child(3) { animation-delay: 0.3s; }
+  .leaderboard-row:nth-child(4) { animation-delay: 0.4s; }
+  .leaderboard-row:nth-child(5) { animation-delay: 0.5s; }
+  .leaderboard-row:nth-child(6) { animation-delay: 0.6s; }
+  .leaderboard-row:nth-child(7) { animation-delay: 0.7s; }
+  .leaderboard-row:nth-child(8) { animation-delay: 0.8s; }
+  .leaderboard-row:nth-child(9) { animation-delay: 0.9s; }
+  .leaderboard-row:nth-child(10) { animation-delay: 1.0s; }
+  
+  .rank-1 { color: gold; font-weight: bold; }
+  .rank-2 { color: silver; font-weight: bold; }
+  .rank-3 { color: #cd7f32; font-weight: bold; }
+</style>
+
+<div class="glass-card p-8 rounded-lg shadow-lg max-w-4xl mx-auto">
+  <h1 class="text-4xl font-bold mb-8 text-center text-indigo-600">Leaderboard</h1>
+  <div class="overflow-x-auto">
+    <table class="w-full">
+      <colgroup>
+        <col style="width: 15%">
+        <col style="width: 55%">
+        <col style="width: 30%">
+      </colgroup>
+      <thead>
+        <tr class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
+          <th class="py-4 px-6 text-lg font-semibold rounded-tl-lg text-center">Rank</th>
+          <th class="py-4 px-6 text-lg font-semibold text-center">Username</th>
+          <th class="py-4 px-6 text-lg font-semibold rounded-tr-lg text-center">Total Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in leaderboard %}
+        <tr class="hover:bg-gray-50 transition-colors duration-200 leaderboard-row">
+          <td class="py-4 px-6 border-b text-gray-700 font-medium rank-{{ forloop.counter }} text-center">
+            {{ forloop.counter }}
+          </td>
+          <td class="py-4 px-6 border-b text-gray-700 font-medium text-center">
+            {{ user.username }}
+          </td>
+          <td class="py-4 px-6 border-b text-gray-700 font-medium text-center">
+            <div class="flex items-center justify-center">
+              <span class="mr-2">{{ user.total_score|default:"0" }}</span>
+              {% if forloop.counter == 1 %}
+              <span class="text-xl">🏆</span>
+              {% elif forloop.counter == 2 %}
+              <span class="text-xl">🥈</span>
+              {% elif forloop.counter == 3 %}
+              <span class="text-xl">🥉</span>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="mt-6 text-center text-gray-500 text-sm italic">
+    Last updated: {% now "F j, Y, g:i a" %}
+  </div>
+</div>
+{% endblock %}

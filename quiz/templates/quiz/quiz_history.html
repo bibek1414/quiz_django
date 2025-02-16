@@ -1,0 +1,430 @@
+{% extends "layout.html" %}
+{% block title %}Quiz History{% endblock %}
+{% block content %}
+<style>
+    .history-container {
+        max-width: 90rem;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+    
+    .page-title {
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .chart-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 1.5rem;
+        margin-bottom: 2.5rem;
+    }
+    
+    .filter-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    
+    .filter-input {
+        flex: 1;
+        min-width: 200px;
+        padding: 0.75rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 0.875rem;
+    }
+    
+    .btn-filter {
+        background: #4f46e5;
+        color: white;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .btn-filter:hover {
+        background: #4338ca;
+        transform: translateY(-1px);
+    }
+    
+    .history-card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 1.75rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        transition: all 0.2s;
+    }
+    
+    .history-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #4f46e5;
+    }
+    
+    .quiz-stats {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .stat-item svg {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+    
+    .answer-list {
+        margin-top: 1.5rem;
+    }
+    
+    .answer-item {
+        background: #f9fafb;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .question-text {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .answer-text {
+        margin-bottom: 0.5rem;
+    }
+    
+    .result-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+    
+    .result-badge.correct {
+        background: rgba(16, 185, 129, 0.1);
+        color: #059669;
+    }
+    
+    .result-badge.incorrect {
+        background: rgba(239, 68, 68, 0.1);
+        color: #dc2626;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    
+    .empty-state svg {
+        width: 4rem;
+        height: 4rem;
+        margin-bottom: 1rem;
+        color: #9ca3af;
+    }
+    
+    .empty-state-text {
+        color: #6b7280;
+        font-size: 1.125rem;
+    }
+    
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 2rem;
+    }
+    
+    .page-btn {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        color: #4b5563;
+        transition: all 0.2s;
+    }
+    
+    .page-btn:hover {
+        background: #f9fafb;
+    }
+    
+    .page-btn.active {
+        background: #4f46e5;
+        color: white;
+        border-color: #4f46e5;
+    }
+    
+    @media (max-width: 640px) {
+        .quiz-stats {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+    }
+</style>
+
+<div class="history-container">
+    <h1 class="page-title">Your Quiz History</h1>
+    
+    <div class="chart-container">
+        <canvas id="quizPerformanceChart"></canvas>
+    </div>
+    
+    <!-- Filter Form -->
+    <form method="GET" class="filter-form">
+        <input type="text" name="quiz" placeholder="Filter by quiz title" class="filter-input">
+        <input type="date" name="date" class="filter-input">
+        <button type="submit" class="btn-filter">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 inline-block" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+            </svg>
+            Filter Results
+        </button>
+    </form>
+    
+    {% if quizzes %}
+        {% for quiz in quizzes %}
+            <div class="quiz-group">
+                <h3 class="card-title">{{ quiz.quiz.title }}</h3>
+                
+                {% for attempt in quiz.attempts %}
+                    <div class="history-card">
+                        <div class="quiz-stats">
+                            <div class="stat-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="#6b7280">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Total Questions: {{ attempt.results|length }}</span>
+                            </div>
+                            
+                            <div class="stat-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="#10b981">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Correct Answers: {{ attempt.correct_count }}</span>
+                            </div>
+                            
+                            <div class="stat-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="#6b7280">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Completed: {{ attempt.taken_at|date:"M d, Y H:i" }}</span>
+                            </div>
+                        </div>
+                        
+                        <hr class="border-gray-200 my-3">
+                        
+                        <h4 class="font-semibold mt-4 mb-2 text-gray-700">Your Answers:</h4>
+                        
+                        <div class="answer-list">
+                            {% for result in attempt.results %}
+                                <div class="answer-item">
+                                    <p class="question-text">{{ result.question.text }}</p>
+                                    <p class="answer-text">Your answer: {{ result.choice.text }}</p>
+                                    
+                                    {% if result.is_correct %}
+                                        <span class="result-badge correct">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                            </svg>
+                                            Correct
+                                        </span>
+                                    {% else %}
+                                        <span class="result-badge incorrect">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                            </svg>
+                                            Incorrect
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+        
+        <!-- Pagination -->
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" class="page-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 inline-block">
+                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    Previous
+                </a>
+            {% endif %}
+            
+            <span class="page-btn active">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="page-btn">
+                    Next
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 inline-block">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                    </svg>
+                </a>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+            <p class="empty-state-text">You haven't taken any quizzes yet.</p>
+            <a href="/" class="btn-filter mt-4 inline-block">Browse Available Quizzes</a>
+        </div>
+    {% endif %}
+</div>  
+
+<!-- Chart Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('quizPerformanceChart').getContext('2d');
+        
+        // Get the data from the template
+        const quizTitles = JSON.parse('{{ quiz_titles|escapejs }}');
+        const correctCounts = JSON.parse('{{ correct_counts|escapejs }}');
+        const incorrectCounts = JSON.parse('{{ incorrect_counts|escapejs }}');
+        
+        // Green gradient for correct answers
+        let greenGradient = ctx.createLinearGradient(0, 0, 0, 400);
+        greenGradient.addColorStop(0, 'rgba(16, 185, 129, 0.6)');
+        greenGradient.addColorStop(1, 'rgba(16, 185, 129, 0.1)');
+        
+        // Red gradient for incorrect answers
+        let redGradient = ctx.createLinearGradient(0, 0, 0, 400);
+        redGradient.addColorStop(0, 'rgba(239, 68, 68, 0.6)');
+        redGradient.addColorStop(1, 'rgba(239, 68, 68, 0.1)');
+        
+        const quizPerformanceChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: quizTitles,
+                datasets: [
+                    {
+                        label: 'Correct Answers',
+                        data: correctCounts,
+                        backgroundColor: greenGradient,
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        barThickness: 20,
+                    },
+                    {
+                        label: 'Incorrect Answers',
+                        data: incorrectCounts,
+                        backgroundColor: redGradient,
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        barThickness: 20,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: {
+                                family: 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                                size: 12
+                            },
+                            padding: 20,
+                            usePointStyle: true,
+                            pointStyle: 'rect'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                        padding: 12,
+                        bodyFont: {
+                            family: 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                            size: 14
+                        },
+                        bodyColor: '#fff',
+                        displayColors: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(107, 114, 128, 0.1)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            font: {
+                                family: 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                                size: 12
+                            },
+                            color: '#6b7280',
+                            padding: 10
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                family: 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                                size: 12
+                            },
+                            color: '#6b7280',
+                            padding: 10
+                        }
+                    }
+                },
+                layout: {
+                    padding: {
+                        top: 20,
+                        right: 20,
+                        bottom: 20,
+                        left: 10
+                    }
+                }
+            }
+        });
+        
+        // Set fixed height for chart container
+        document.querySelector('.chart-container').style.height = '400px';
+    });
+</script>
+{% endblock %}

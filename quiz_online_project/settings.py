@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-
+from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,12 +25,11 @@ SECRET_KEY = 'django-insecure-^#4i6cg#@6ti^uvwci3r#0l!z=u^@kanl#%+x+e033#f0c_6(u
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 ALLOWED_HOSTS = ['*']
-
-
-# Application definition
-
+load_dotenv()  
+# OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+# DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
+# DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions'
 INSTALLED_APPS = [
     'theme',
     'django_browser_reload',

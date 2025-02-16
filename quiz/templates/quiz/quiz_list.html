@@ -62,6 +62,11 @@
         }
     }
 
+    /* Floating Animation Class */
+    .floating-cards {
+        animation: floatingCards 3s ease-in-out infinite;
+    }
+
     /* Page Title Styles */
     .page-title {
         animation: fadeInUp 0.8s ease-out;
@@ -285,19 +290,22 @@
                         </div>
                         
                         <div class="card-body">
-                            {% if quiz.tags %}
+                            {% if quiz.category %}
                                 <div class="flex flex-wrap gap-2 mb-4">
-                                    {% for tag in quiz.tags %}
-                                        <span class="quiz-tag">{{ tag }}</span>
-                                    {% endfor %}
+                                    <span class="quiz-tag">{{ quiz.category.name }}</span>
+                                </div>
+                            {% endif %}
+                            {% if quiz.difficulty %}
+                                <div class="flex flex-wrap gap-2 mb-4">
+                                    <span class="quiz-tag">{{ quiz.difficulty.level }}</span>
                                 </div>
                             {% endif %}
                             {% if quiz.description %}
                                 <p class="text-gray-600">{{ quiz.description|truncatechars:120 }}</p>
                             {% endif %}
-                            {% if quiz.question_count %}
+                            {% if quiz.questions.count %}
                                 <p class="text-sm text-gray-500 mt-3">
-                                    <span>{{ quiz.question_count }} questions</span>
+                                    <span>{{ quiz.questions.count }} questions</span>
                                 </p>
                             {% endif %}
                         </div>
@@ -329,20 +337,14 @@
 </div>
 
 <script>
-    // Optional: Add hover animation for floating effect
+    // Apply floating animation permanently
     document.addEventListener('DOMContentLoaded', function() {
         const cards = document.querySelectorAll('.quiz-card');
         
         cards.forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                if (window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
-                    this.style.animation = 'floatingCards 3s ease-in-out infinite';
-                }
-            });
-            
-            card.addEventListener('mouseleave', function() {
-                this.style.animation = '';
-            });
+            if (window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+                card.classList.add('floating-cards');
+            }
         });
     });
 </script>

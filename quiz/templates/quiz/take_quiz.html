@@ -14,10 +14,28 @@
 
     <form id="quiz-form" method="POST">
         {% csrf_token %}
-        <input type="hidden" name="selected_choice" id="selected_choice_input">
+        <input type="hidden" name="selected_choice" id="selected_choice_input" value="">
+        <input type="hidden" name="hint_used" id="hint_used_input" value="false">
+        <input type="hidden" name="time_expired" id="time_expired_input" value="false">
         
         <div class="bg-white p-8 mb-4 rounded-xl shadow-lg border border-purple-100">
             <h3 id="question" class="text-2xl font-bold text-gray-800 mb-8">{{ question.text }}</h3>
+            
+            {% if question.hint %}
+            <div class="mb-6">
+                <button type="button" 
+                        id="hint-button" 
+                        class="text-amber-600 flex items-center text-sm hover:text-amber-700 transition">
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Show Hint
+                </button>
+                <div id="hint-text" class="hidden mt-3 p-3 bg-amber-50 border-l-4 border-amber-500 rounded-r text-amber-700">
+                    {{ question.hint }}
+                </div>
+            </div>
+            {% endif %}
             
             <div class="space-y-4">
                 {% for choice in question.choices.all %}
@@ -87,11 +105,28 @@
     </div>
 </div>
 
+<!-- Time expired message -->
+<div id="time-expired-message" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white p-8 rounded-xl shadow-xl max-w-sm w-full mx-4 transform transition-all text-center">
+        <svg class="w-16 h-16 mx-auto text-red-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <h3 class="text-2xl font-bold mb-4 text-gray-800">Time's Up!</h3>
+        <p class="mb-6 text-gray-600">You didn't select an answer in time.</p>
+        <button id="see-correct-answer" 
+                class="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-700 text-white rounded-lg 
+                       hover:from-indigo-700 hover:to-purple-800 transition-colors font-semibold">
+            See Correct Answer
+        </button>
+    </div>
+</div>
+
 <!-- Audio elements -->
 <audio id="timer-sound" src="{% static '/sounds/timer1.mp3' %}" loop preload="auto"></audio>
 <audio id="lock-sound" src="{% static 'sounds/lock.mp3' %}" preload="auto"></audio>
 <audio id="correct-sound" src="{% static 'sounds/correct.mp3' %}" preload="auto"></audio>
 <audio id="wrong-sound" src="{% static 'sounds/wrong.mp3' %}" preload="auto"></audio>
+<audio id="hint-sound" src="{% static 'sounds/hint.mp3' %}" preload="auto"></audio>
 
 <style>
     .choice-button {
@@ -133,6 +168,7 @@
     let lockSound = document.getElementById('lock-sound');
     let correctSound = document.getElementById('correct-sound');
     let wrongSound = document.getElementById('wrong-sound');
+    let hintSound = document.getElementById('hint-sound');
     let choiceWrappers = document.querySelectorAll('.choice-wrapper');
     let submitWrapper = document.getElementById('submit-wrapper');
     let lockButton = document.getElementById('lock-button');
@@ -140,9 +176,37 @@
     let lockModal = document.getElementById('lock-modal');
     let selectedOptionText = document.getElementById('selected-option-text');
     let selectedChoiceInput = document.getElementById('selected_choice_input');
+    let hintUsedInput = document.getElementById('hint_used_input');
+    let timeExpiredInput = document.getElementById('time_expired_input');
+    let timeExpiredMessage = document.getElementById('time-expired-message');
+    let seeCorrectAnswerButton = document.getElementById('see-correct-answer');
+    let hintButton = document.getElementById('hint-button');
+    let hintText = document.getElementById('hint-text');
     let timerInterval;
     let isAnswerLocked = false;
     let answerSelected = false;
+    
+    // Hint functionality
+    if (hintButton) {
+        hintButton.addEventListener('click', function() {
+            if (hintText) {
+                hintText.classList.remove('hidden');
+                hintUsedInput.value = 'true';
+                hintButton.classList.add('text-amber-800');
+                hintButton.innerHTML = `
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Hint shown
+                `;
+                hintButton.disabled = true;
+                
+                if (hintSound) {
+                    hintSound.play().catch(e => console.log('Sound play prevented'));
+                }
+            }
+        });
+    }
 
     // Animation observer setup
     const observerOptions = { threshold: 0.5 };
@@ -199,20 +263,48 @@
                 audio.currentTime = 0;
             }
             
+            // Handle time expiration
             if (!answerSelected) {
-                document.querySelectorAll('.choice-div').forEach(choice => {
-                    if (choice.dataset.isCorrect === 'true') {
-                        const button = choice.querySelector('.choice-button');
-                        button.classList.remove('from-indigo-600', 'to-purple-700');
-                        button.classList.add('from-green-500', 'to-green-700');
-                    }
-                });
+                timeExpiredInput.value = 'true';
+                showTimeExpiredMessage();
+                if (wrongSound) {
+                    wrongSound.play().catch(e => console.log('Sound play prevented'));
+                }
             }
-            
-            setTimeout(() => {
-                document.getElementById('quiz-form').submit();
-            }, 2000);
         }
+    }
+
+    function showTimeExpiredMessage() {
+        timeExpiredMessage.classList.remove('hidden');
+    }
+
+    // Show correct answer when time expires
+    if (seeCorrectAnswerButton) {
+        seeCorrectAnswerButton.addEventListener('click', function() {
+            timeExpiredMessage.classList.add('hidden');
+            
+            // Mark all incorrect answers as red
+            document.querySelectorAll('.choice-div').forEach(choice => {
+                if (choice.dataset.isCorrect === 'false') {
+                    const button = choice.querySelector('.choice-button');
+                    button.classList.remove('from-indigo-600', 'to-purple-700');
+                    button.classList.add('from-red-500', 'to-red-700');
+                }
+            });
+            
+            // Mark correct answer as green
+            document.querySelectorAll('.choice-div').forEach(choice => {
+                if (choice.dataset.isCorrect === 'true') {
+                    const button = choice.querySelector('.choice-button');
+                    button.classList.remove('from-indigo-600', 'to-purple-700');
+                    button.classList.add('from-green-500', 'to-green-700');
+                }
+            });
+            
+            // Show next button
+            lockButton.classList.add('hidden');
+            nextButton.classList.remove('hidden');
+        });
     }
 
     timerInterval = setInterval(updateTimer, 1000);

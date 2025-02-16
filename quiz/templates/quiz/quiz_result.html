@@ -1,74 +1,106 @@
 {% extends 'layout.html' %}
-
+{% load custom_filters %}
 {% block title %}Quiz Result{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <h1 class="text-4xl font-extrabold text-center text-gray-900 mb-8 animate-fade-in">
-        Your Result for the Quiz: <span class="text-indigo-600">{{ quiz.title }}</span>
-    </h1>
-
-    {% if messages %}
-        {% for message in messages %}
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 animate-fade-in" role="alert">
-                <span class="block sm:inline">{{ message }}</span>
-            </div>
-        {% endfor %}
-    {% endif %}
-
-    <div class="bg-white p-8 rounded-xl shadow-lg transform transition-all duration-300 hover:shadow-2xl">
-        <p class="text-xl font-semibold text-gray-800 mb-2">
-            Score: <span class="text-indigo-600 font-bold">{{ result }}</span> out of <span class="text-indigo-600 font-bold">{{ total_questions }}</span>
-        </p>
-        <p class="text-gray-500 text-sm mb-6">Quiz Taken On: {{ results.last.taken_at|date:"F j, Y, g:i a" }}</p>
-        
-        <div class="mt-6">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">Detailed Results:</h2>
-            <ul class="space-y-4">
-                {% for result in results %}
-                    <li class="flex flex-col p-4 rounded-lg transition-all duration-200 {{ result.is_correct|yesno:'bg-green-50 hover:bg-green-100, bg-red-50 hover:bg-red-100' }}">
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-700">{{ result.question.text }}</span>
-                            <span class="text-sm font-semibold {{ result.is_correct|yesno:'text-green-600, text-red-600' }}">
-                                {% if result.is_correct %}
-                                    <span class="flex items-center">
-                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                        Correct
-                                    </span>
-                                {% else %}
-                                    <span class="flex items-center">
-                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                        </svg>
-                                        Incorrect
-                                    </span>
-                                {% endif %}
-                            </span>
-                        </div>
-                        <!-- Show user's answer and correct answer -->
-                        <div class="mt-3 text-sm text-gray-600">
-                            <p class="mb-1">
-                                <span class="font-semibold">Your Answer:</span> 
-                                <span class="{{ result.is_correct|yesno:'text-green-600, text-red-600' }}">{{ result.choice.text }}</span>
-                            </p>
-                            {% if not result.is_correct %}
-                                <p>
-                                    <span class="font-semibold">Correct Answer:</span> 
-                                    <span class="text-green-600">{{ result.correct_answer.text }}</span>
-                                </p>
-                            {% endif %}
-                        </div>
-                    </li>
-                {% endfor %}
-            </ul>
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold mb-2">Quiz Results: {{ quiz.title }}</h1>
+        <div class="result-summary text-xl">
+            You scored <span class="font-bold text-{% if result >= total_questions|floatformat:0 %}green{% elif result >= total_questions|floatformat:0|divisor:2 %}yellow{% else %}red{% endif %}-600">{{ result }} out of {{ total_questions }}</span>
         </div>
     </div>
 
-    <div class="mt-10 text-center animate-fade-in-up">
-        <a href="{% url 'quiz_list' %}" class="inline-block bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-indigo-600 transition-all duration-300 transform hover:scale-105">
+    <div class="results-card bg-white rounded-xl shadow-lg p-6 mb-6">
+        <div class="results-list divide-y">
+            {% for result in results %}
+            <div class="result-item py-6 {% if not forloop.first %}pt-6{% endif %} {% if not forloop.last %}pb-6{% endif %}">
+                <div class="flex items-start gap-4">
+                    <div class="result-icon flex-shrink-0 mt-1">
+                        {% if result.is_correct %}
+                        <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        {% else %}
+                        <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="result-content flex-grow">
+                        <div class="question-text text-lg font-medium mb-3">
+                            {{ result.question.text }}
+                        </div>
+                        
+                        {% if result.question.question_type == 'multiple_choice' or result.question.question_type == 'true_false' %}
+                            {% if result.choice %}
+                            <div class="user-answer mb-2 {% if result.is_correct %}text-green-700{% else %}text-red-700{% endif %}">
+                                <strong>Your answer:</strong> {{ result.choice.text }}
+                            </div>
+                            {% endif %}
+                            
+                            {% if not result.is_correct and result.correct_answer %}
+                            <div class="correct-answer mb-2 text-green-700">
+                                <strong>Correct answer:</strong> {{ result.correct_answer.text }}
+                            </div>
+                            {% endif %}
+                            
+                        {% elif result.question.question_type == 'fill_blank' %}
+                            <div class="user-answer mb-2 {% if result.is_correct %}text-green-700{% else %}text-red-700{% endif %}">
+                                <strong>Your answer:</strong> {{ result.user_answer_text }}
+                            </div>
+                            
+                            {% if not result.is_correct and result.correct_answer %}
+                            <div class="correct-answer mb-2 text-green-700">
+                                <strong>Correct answer:</strong> {{ result.correct_answer.text }}
+                            </div>
+                            {% endif %}
+                            
+                        {% elif result.question.question_type == 'coding' %}
+                            <div class="user-code mb-3">
+                                <div class="mb-1 font-medium">Your code:</div>
+                                <pre class="bg-gray-100 p-3 rounded-lg overflow-x-auto text-sm">{{ result.user_code_answer }}</pre>
+                            </div>
+                            
+                            {% if not result.is_correct and result.expected_output %}
+                            <div class="expected-output mb-3">
+                                <div class="mb-1 font-medium text-green-700">Expected output:</div>
+                                <pre class="bg-gray-100 p-3 rounded-lg overflow-x-auto text-sm border-l-4 border-green-500">{{ result.expected_output }}</pre>
+                            </div>
+                            {% endif %}
+                        {% endif %}
+                        
+                        {% if result.question.explanation %}
+                        <div class="explanation mt-3 bg-blue-50 border-l-4 border-blue-500 p-3 rounded-r-lg">
+                            <div class="font-medium text-blue-800 mb-1">Explanation:</div>
+                            <div class="text-blue-700">{{ result.question.explanation }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if result.hint_used %}
+                        <div class="hint-used mt-3">
+                            <span class="text-amber-600 text-sm italic">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Hint was used for this question
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="actions flex justify-between mt-8">
+        <a href="{% url 'quiz_list' %}" class="inline-block px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition">
             Back to Quizzes
+        </a>
+        <a href="{% url 'quiz_history' %}" class="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+            View Quiz History
         </a>
     </div>
 </div>
