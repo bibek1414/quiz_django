@@ -27,9 +27,7 @@ SECRET_KEY = 'django-insecure-^#4i6cg#@6ti^uvwci3r#0l!z=u^@kanl#%+x+e033#f0c_6(u
 DEBUG = True
 ALLOWED_HOSTS = ['*']
 load_dotenv()  
-# OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-# DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
-# DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions'
+
 INSTALLED_APPS = [
     'theme',
     'django_browser_reload',

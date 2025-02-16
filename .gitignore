@@ -1,0 +1,32 @@
+# Ignore the .env file (contains sensitive information)
+.env
+
+# Ignore all log files
+*.log
+
+# Ignore the node_modules directory (for Node.js projects)
+node_modules/
+
+# Ignore build directories
+build/
+dist/
+
+# Ignore IDE-specific files
+.vscode/
+.idea/
+
+# Ignore operating system files
+.DS_Store
+Thumbs.db
+
+# Ignore Python-specific files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+
+# Ignore virtual environment directories
+venv/
+env/
