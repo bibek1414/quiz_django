@@ -1,4 +1,5 @@
 from django.contrib.auth.forms import UserCreationForm
+from .forms import CustomUserCreationForm, QuizForm 
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -217,7 +218,7 @@ def quiz_result(request, quiz_id):
 
 def register(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             user.is_active = True
@@ -226,7 +227,7 @@ def register(request):
             messages.success(request, "Your account has been created! You are now logged in.")
             return redirect("quiz_list")
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
     return render(request, "registration/register.html", {"form": form})
 @login_required
 def quiz_history(request):

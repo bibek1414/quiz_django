@@ -4,6 +4,7 @@
 
 {% block content %}
 <style>
+    /* Keep your existing styles */
     /* Custom Animations */
     @keyframes fadeInUp {
         from {
@@ -131,6 +132,10 @@
         <div class="mb-4">
             <label for="id_username" class="block text-sm font-medium text-gray-700">Username</label>
             <input type="text" name="username" id="id_username" class="form-input w-full mt-1" required>
+        </div>
+        <div class="mb-4">
+            <label for="id_email" class="block text-sm font-medium text-gray-700">Email</label>
+            <input type="email" name="email" id="id_email" class="form-input w-full mt-1" required>
         </div>
         <div class="mb-4">
             <label for="id_password1" class="block text-sm font-medium text-gray-700">Password</label>

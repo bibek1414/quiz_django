@@ -27,7 +27,13 @@ SECRET_KEY = 'django-insecure-^#4i6cg#@6ti^uvwci3r#0l!z=u^@kanl#%+x+e033#f0c_6(u
 DEBUG = True
 ALLOWED_HOSTS = ['*']
 load_dotenv()  
-
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# For production, configure your actual email server
+# EMAIL_HOST = 'smtp.yourmailserver.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'your_email@example.com'
+# EMAIL_HOST_PASSWORD = 'your_email_password'
 INSTALLED_APPS = [
     'theme',
     'django_browser_reload',
@@ -156,3 +162,9 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com' 
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')  # Fetch from .env
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')  # Fetch from .env
