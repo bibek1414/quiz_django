@@ -88,20 +88,58 @@
         color: #9333ea;
         text-decoration: underline;
     }
+
+    /* Error Messages */
+    .error-message {
+        color: #dc3545; /* Red color for errors */
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
 </style>
 
 <div class="login-container">
     <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Login to Your Account</h2>
     <form method="post">
         {% csrf_token %}
+        
+        <!-- Display non-field errors (e.g., invalid username/password) -->
+        {% if form.non_field_errors %}
+            <div class="error-message mb-4">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Username Field -->
         <div class="mb-4">
             <label for="id_username" class="block text-sm font-medium text-gray-700">Username</label>
             <input type="text" name="username" id="id_username" class="form-input w-full mt-1" required>
+            <!-- Display username field errors -->
+            {% if form.username.errors %}
+                <div class="error-message">
+                    {% for error in form.username.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
+
+        <!-- Password Field -->
         <div class="mb-6">
             <label for="id_password" class="block text-sm font-medium text-gray-700">Password</label>
             <input type="password" name="password" id="id_password" class="form-input w-full mt-1" required>
+            <!-- Display password field errors -->
+            {% if form.password.errors %}
+                <div class="error-message">
+                    {% for error in form.password.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
+
+        <!-- Submit Button -->
         <button type="submit" class="gradient-button w-full">
             Login
         </button>

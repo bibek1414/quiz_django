@@ -271,13 +271,139 @@
         .gradient-button::after {
             animation: none !important;
         }
+    }.category-card {
+        animation: fadeInUp 0.8s ease-out;
+        animation-fill-mode: both;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: linear-gradient(145deg, #ffffff, #f8fafc);
+        border: 1px solid rgba(229, 231, 235, 0.5);
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    .category-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #4f46e5, #9333ea);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+        z-index: 2;
+    }
+
+    .category-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    .category-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    /* Difficulty buttons */
+    .difficulty-button {
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    
+    .difficulty-button:hover {
+        transform: translateY(-2px);
+    }
+    
+    .difficulty-button.active {
+        border-color: #4f46e5;
+        background-color: rgba(79, 70, 229, 0.1);
+    }
+    
+    /* Back button */
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        color: #4f46e5;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .back-button:hover {
+        transform: translateX(-3px);
+    }
+    
+    .back-button svg {
+        margin-right: 0.5rem;
     }
 </style>
 
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <h1 class="page-title text-5xl font-extrabold text-center mb-12">Available Quizzes</h1>
     
-    {% if quizzes %}
+    {% if not selected_category %}
+        <!-- Show categories if no category is selected -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for category in categories %}
+                <a href="{% url 'quiz_list' %}?category={{ category.name }}" class="block">
+                    <div class="category-card rounded-xl shadow-lg p-6 h-full">
+                        <div class="card-content">
+                            <h2 class="text-2xl font-bold mb-2">{{ category.name }}</h2>
+                            <p class="text-gray-600 mb-4">
+                                {% with quiz_count=category.quizzes.count %}
+                                    {{ quiz_count }} quiz{{ quiz_count|pluralize:"zes" }} available
+                                {% endwith %}
+                            </p>
+                            <div class="mt-auto pt-4">
+                                <span class="gradient-button inline-block text-white px-6 py-3 rounded-lg font-semibold transition-all">
+                                    View Quizzes
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            {% empty %}
+                <div class="col-span-3 empty-state-card quiz-card text-center py-16 rounded-xl shadow-lg">
+                    <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" 
+                              d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <p class="text-gray-500 text-xl">No quiz categories available.</p>
+                    <p class="text-gray-400 mt-2 mb-6">Check back later for new quizzes!</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Show back button and category title -->
+        <div class="mb-8">
+            <a href="{% url 'quiz_list' %}" class="back-button">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Categories
+            </a>
+            <h2 class="text-3xl font-bold mt-4">{{ selected_category }} Quizzes</h2>
+        </div>
+        
+        <!-- Show difficulty filter buttons if we have difficulty levels -->
+        {% if difficulty_levels %}
+            <div class="mb-8">
+                <h3 class="text-lg font-medium mb-3">Select Difficulty:</h3>
+                <div class="flex flex-wrap gap-3">
+                    <a href="{% url 'quiz_list' %}?category={{ selected_category }}" 
+                       class="difficulty-button px-4 py-2 rounded-lg shadow-sm {% if not selected_difficulty %}active{% endif %}">
+                        All Levels
+                    </a>
+                    {% for level in difficulty_levels %}
+                        <a href="{% url 'quiz_list' %}?category={{ selected_category }}&difficulty={{ level.level }}" 
+                           class="difficulty-button px-4 py-2 rounded-lg shadow-sm {% if selected_difficulty == level.level %}active{% endif %}">
+                            {{ level.level }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+        
+        <!-- Show quizzes for the selected category -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for quiz in quizzes %}
                 <div class="quiz-card rounded-xl shadow-lg p-6">
@@ -290,11 +416,6 @@
                         </div>
                         
                         <div class="card-body">
-                            {% if quiz.category %}
-                                <div class="flex flex-wrap gap-2 mb-4">
-                                    <span class="quiz-tag">{{ quiz.category.name }}</span>
-                                </div>
-                            {% endif %}
                             {% if quiz.difficulty %}
                                 <div class="flex flex-wrap gap-2 mb-4">
                                     <span class="quiz-tag">{{ quiz.difficulty.level }}</span>
@@ -318,20 +439,16 @@
                         </div>
                     </div>
                 </div>
+            {% empty %}
+                <div class="col-span-3 empty-state-card quiz-card text-center py-16 rounded-xl shadow-lg">
+                    <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" 
+                              d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <p class="text-gray-500 text-xl">No quizzes available for this category.</p>
+                    <p class="text-gray-400 mt-2 mb-6">Check back later for new quizzes!</p>
+                </div>
             {% endfor %}
-        </div>
-    {% else %}
-        <div class="empty-state-card quiz-card text-center py-16 rounded-xl shadow-lg">
-            <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" 
-                      d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-            <p class="text-gray-500 text-xl">No quizzes available right now.</p>
-            <p class="text-gray-400 mt-2 mb-6">Check back later for new quizzes!</p>
-            <a href="javascript:void(0)" onclick="window.location.reload()" 
-               class="gradient-button inline-block text-white px-6 py-3 rounded-lg font-semibold max-w-xs mx-auto">
-                Refresh Page
-            </a>
         </div>
     {% endif %}
 </div>
@@ -339,7 +456,7 @@
 <script>
     // Apply floating animation permanently
     document.addEventListener('DOMContentLoaded', function() {
-        const cards = document.querySelectorAll('.quiz-card');
+        const cards = document.querySelectorAll('.quiz-card, .category-card');
         
         cards.forEach(card => {
             if (window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {

@@ -16,27 +16,33 @@ from .models import Quiz, Category, DifficultyLevel
 from django.db.models import Sum
 
 def quiz_list(request):
+    # Get the category from URL parameter, if provided
     category_filter = request.GET.get('category')
-    difficulty_filter = request.GET.get('difficulty')
-
-    quizzes = Quiz.objects.all()
-
-    # Apply filters
-    if category_filter:
-        quizzes = quizzes.filter(category__name=category_filter)
-    if difficulty_filter:
-        quizzes = quizzes.filter(difficulty__level=difficulty_filter)
-
-    # Get all categories and difficulty levels for the filter dropdowns
+    
+    # Get all categories for the navigation
     categories = Category.objects.all()
-    difficulty_levels = DifficultyLevel.objects.all()
-
+    
+    if category_filter:
+        # If category is selected, get quizzes for that category only
+        category = get_object_or_404(Category, name=category_filter)
+        quizzes = Quiz.objects.filter(category=category)
+        difficulty_levels = DifficultyLevel.objects.filter(quizzes__category=category).distinct()
+        
+        # If difficulty is also specified, filter further
+        difficulty_filter = request.GET.get('difficulty')
+        if difficulty_filter:
+            quizzes = quizzes.filter(difficulty__level=difficulty_filter)
+    else:
+        # If no category selected, group quizzes by category
+        quizzes = None
+        difficulty_levels = None
+    
     context = {
-        "quizzes": quizzes,
         "categories": categories,
-        "difficulty_levels": difficulty_levels,
         "selected_category": category_filter,
-        "selected_difficulty": difficulty_filter,
+        "quizzes": quizzes,
+        "difficulty_levels": difficulty_levels,
+        "selected_difficulty": request.GET.get('difficulty'),
     }
     return render(request, "quiz/quiz_list.html", context)
 
@@ -319,3 +325,4 @@ def leaderboard(request):
         'leaderboard': leaderboard_data
     }
     return render(request, 'quiz/leaderboard.html', context)
+
