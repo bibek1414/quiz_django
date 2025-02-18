@@ -1,13 +1,14 @@
+
 from django.core.management.base import BaseCommand
 from quiz.models import Category, DifficultyLevel, Quiz, Question, Choice
 import random
 
 class Command(BaseCommand):
-    help = 'Adds mind-challenging quizzes with 10 questions for each difficulty level'
+    help = 'Adds MLBB quizzes with 10 questions for each difficulty level'
 
     def handle(self, *args, **kwargs):
-        # Create categories
-        mind_challenges, created = Category.objects.get_or_create(name="Mind Challenges")
+        # Create MLBB category
+        mlbb_category, created = Category.objects.get_or_create(name="Mobile Legends: Bang Bang")
         
         # Create difficulty levels
         easy, created = DifficultyLevel.objects.get_or_create(level="Easy")
@@ -15,383 +16,463 @@ class Command(BaseCommand):
         hard, created = DifficultyLevel.objects.get_or_create(level="Hard")
         extreme, created = DifficultyLevel.objects.get_or_create(level="Extreme")
         
-        # Mind-challenging questions for each difficulty level
+        # MLBB questions for each difficulty level
         questions_data = {
             easy: [
                 {
-                    "text": "Question 1: A farmer has 17 sheep. All but 9 die. How many sheep are left?",
+                    "text": "Question 1: Which hero is known as the 'Fighter of the Dawn'?",
                     "choices": [
-                        {"text": "9", "is_correct": True},
-                        {"text": "8", "is_correct": False},
-                        {"text": "0", "is_correct": False},
-                        {"text": "17", "is_correct": False},
-                    ]
+                        {"text": "Alucard", "is_correct": True},
+                        {"text": "Fanny", "is_correct": False},
+                        {"text": "Layla", "is_correct": False},
+                        {"text": "Gusion", "is_correct": False},
+                    ],
+                    "hint": "This hero is a melee fighter with lifesteal abilities.",
+                    "explanation": "Alucard is known as the 'Fighter of the Dawn' due to his lifesteal and melee combat skills."
                 },
                 {
-                    "text": "Question 2: If you multiply this number by any other number, the answer will always be the same. What number is it?",
+                    "text": "Question 2: What is the name of the dragon that spawns in the river?",
                     "choices": [
-                        {"text": "Zero", "is_correct": True},
-                        {"text": "One", "is_correct": False},
-                        {"text": "Ten", "is_correct": False},
-                        {"text": "Hundred", "is_correct": False},
-                    ]
+                        {"text": "Lord", "is_correct": False},
+                        {"text": "Turtle", "is_correct": False},
+                        {"text": "Crab", "is_correct": False},
+                        {"text": "None of the above", "is_correct": True},
+                    ],
+                    "hint": "The dragon is a powerful neutral monster that provides buffs.",
+                    "explanation": "There is no dragon in the river; the Turtle and Lord are the main neutral monsters."
                 },
                 {
-                    "text": "Question 3: What is at the end of a rainbow?",
+                    "text": "Question 3: Which hero is known for her ultimate ability 'Demon Slayer'?",
                     "choices": [
-                        {"text": "The letter W", "is_correct": True},
-                        {"text": "Gold", "is_correct": False},
-                        {"text": "Colors", "is_correct": False},
-                        {"text": "Nothing", "is_correct": False},
-                    ]
+                        {"text": "Aldous", "is_correct": True},
+                        {"text": "Lancelot", "is_correct": False},
+                        {"text": "Gusion", "is_correct": False},
+                        {"text": "Kagura", "is_correct": False},
+                    ],
+                    "hint": "This hero can deal massive damage to a single target.",
+                    "explanation": "Aldous's ultimate ability 'Demon Slayer' allows him to deal massive damage to a single enemy hero."
                 },
                 {
-                    "text": "Question 4: What room can no one enter?",
+                    "text": "Question 4: What is the primary role of a tank hero?",
                     "choices": [
-                        {"text": "A mushroom", "is_correct": True},
-                        {"text": "A bedroom", "is_correct": False},
-                        {"text": "A bathroom", "is_correct": False},
-                        {"text": "A living room", "is_correct": False},
-                    ]
+                        {"text": "Damage dealer", "is_correct": False},
+                        {"text": "Support", "is_correct": False},
+                        {"text": "Crowd control", "is_correct": False},
+                        {"text": "Absorb damage", "is_correct": True},
+                    ],
+                    "hint": "These heroes are often at the front lines.",
+                    "explanation": "Tank heroes are designed to absorb damage and protect their teammates."
                 },
                 {
-                    "text": "Question 5: What word is always spelled wrong in the dictionary?",
+                    "text": "Question 5: Which item grants additional health and mana regeneration?",
                     "choices": [
-                        {"text": "Wrong", "is_correct": True},
-                        {"text": "Incorrect", "is_correct": False},
-                        {"text": "Misspelled", "is_correct": False},
-                        {"text": "Error", "is_correct": False},
-                    ]
+                        {"text": "Blade of Despair", "is_correct": False},
+                        {"text": "Oracle", "is_correct": True},
+                        {"text": "Endless Battle", "is_correct": False},
+                        {"text": "Bloodlust Axe", "is_correct": False},
+                    ],
+                    "hint": "This item is often used by support heroes.",
+                    "explanation": "Oracle grants additional health and mana regeneration to the user and nearby allies."
                 },
                 {
-                    "text": "Question 6: What occurs once in every minute, twice in every moment, but never in a thousand years?",
+                    "text": "Question 6: What is the maximum number of players in a standard MLBB match?",
                     "choices": [
-                        {"text": "The letter M", "is_correct": True},
-                        {"text": "Time", "is_correct": False},
-                        {"text": "Space", "is_correct": False},
-                        {"text": "Numbers", "is_correct": False},
-                    ]
+                        {"text": "5", "is_correct": True},
+                        {"text": "10", "is_correct": False},
+                        {"text": "7", "is_correct": False},
+                        {"text": "3", "is_correct": False},
+                    ],
+                    "hint": "Each team consists of the same number of players.",
+                    "explanation": "A standard MLBB match consists of 5 players on each team."
                 },
                 {
-                    "text": "Question 7: What has 13 hearts but no organs?",
+                    "text": "Question 7: Which hero is known for her ability to heal allies?",
                     "choices": [
-                        {"text": "A deck of cards", "is_correct": True},
-                        {"text": "A valentine's box", "is_correct": False},
-                        {"text": "A hospital", "is_correct": False},
-                        {"text": "A love story", "is_correct": False},
-                    ]
+                        {"text": "Angela", "is_correct": True},
+                        {"text": "Lylia", "is_correct": False},
+                        {"text": "Kaja", "is_correct": False},
+                        {"text": "Gord", "is_correct": False},
+                    ],
+                    "hint": "This hero can also attach to allies.",
+                    "explanation": "Angela can heal allies and attach to them, providing additional support."
                 },
                 {
-                    "text": "Question 8: What has a thumb and four fingers but is not alive?",
+                    "text": "Question 8: What is the primary objective in MLBB?",
                     "choices": [
-                        {"text": "A glove", "is_correct": True},
-                        {"text": "A hand drawing", "is_correct": False},
-                        {"text": "A robot hand", "is_correct": False},
-                        {"text": "A statue", "is_correct": False},
-                    ]
+                        {"text": "Destroy the enemy base", "is_correct": True},
+                        {"text": "Kill the most heroes", "is_correct": False},
+                        {"text": "Collect the most gold", "is_correct": False},
+                        {"text": "Capture the most turrets", "is_correct": False},
+                    ],
+                    "hint": "The game ends when one team's base is destroyed.",
+                    "explanation": "The primary objective in MLBB is to destroy the enemy's base."
                 },
                 {
-                    "text": "Question 9: What has keys but no locks, space but no room?",
+                    "text": "Question 9: Which hero is known for her crowd control abilities?",
                     "choices": [
-                        {"text": "A keyboard", "is_correct": True},
-                        {"text": "A house", "is_correct": False},
-                        {"text": "A car", "is_correct": False},
-                        {"text": "A phone", "is_correct": False},
-                    ]
+                        {"text": "Layla", "is_correct": False},
+                        {"text": "Kagura", "is_correct": True},
+                        {"text": "Miya", "is_correct": False},
+                        {"text": "Fanny", "is_correct": False},
+                    ],
+                    "hint": "This hero can control the battlefield with her skills.",
+                    "explanation": "Kagura has crowd control abilities that can disrupt enemy movements."
                 },
                 {
-                    "text": "Question 10: The more of them you take, the more you leave behind. What are they?",
+                    "text": "Question 10: What is the role of a marksman in MLBB?",
                     "choices": [
-                        {"text": "Footsteps", "is_correct": True},
-                        {"text": "Memories", "is_correct": False},
-                        {"text": "Time", "is_correct": False},
-                        {"text": "Thoughts", "is_correct": False},
-                    ]
+                        {"text": "Tank", "is_correct": False},
+                        {"text": "Damage dealer", "is_correct": True},
+                        {"text": "Support", "is_correct": False},
+                        {"text": "Crowd control", "is_correct": False},
+                    ],
+                    "hint": "These heroes deal damage from a distance.",
+                    "explanation": "Marksmen are ranged heroes that deal damage from a distance."
                 },
             ],
             medium: [
                 {
-                    "text": "Question 1: If it takes 5 machines 5 minutes to make 5 widgets, how long would it take 100 machines to make 100 widgets?",
+                    "text": "Question 1: Which hero can teleport to their sword?",
                     "choices": [
-                        {"text": "5 minutes", "is_correct": True},
-                        {"text": "100 minutes", "is_correct": False},
-                        {"text": "20 minutes", "is_correct": False},
-                        {"text": "500 minutes", "is_correct": False},
-                    ]
+                        {"text": "Chou", "is_correct": False},
+                        {"text": "Lancelot", "is_correct": False},
+                        {"text": "Hayabusa", "is_correct": False},
+                        {"text": "Fanny", "is_correct": True},
+                    ],
+                    "hint": "This hero uses energy cables to move around the map.",
+                    "explanation": "Fanny can teleport to her sword using her energy cables."
                 },
                 {
-                    "text": "Question 2: A doctor gives you three pills and tells you to take one every half hour. How long would the pills last?",
+                    "text": "Question 2: What is the maximum level a hero can reach in a match?",
                     "choices": [
-                        {"text": "1 hour", "is_correct": True},
-                        {"text": "1.5 hours", "is_correct": False},
-                        {"text": "2 hours", "is_correct": False},
-                        {"text": "30 minutes", "is_correct": False},
-                    ]
+                        {"text": "15", "is_correct": True},
+                        {"text": "20", "is_correct": False},
+                        {"text": "10", "is_correct": False},
+                        {"text": "25", "is_correct": False},
+                    ],
+                    "hint": "The level cap is the same for all heroes.",
+                    "explanation": "The maximum level a hero can reach in a match is 15."
                 },
                 {
-                    "text": "Question 3: In a year, there are 12 months. Seven months have 31 days. How many months have 28 days?",
+                    "text": "Question 3: Which hero has the ability 'Blazing Duet'?",
                     "choices": [
-                        {"text": "All of them", "is_correct": True},
-                        {"text": "One", "is_correct": False},
-                        {"text": "Five", "is_correct": False},
-                        {"text": "Four", "is_correct": False},
-                    ]
+                        {"text": "Layla", "is_correct": False},
+                        {"text": "Lancelot", "is_correct": False},
+                        {"text": "Miya", "is_correct": False},
+                        {"text": "Masha", "is_correct": True},
+                    ],
+                    "hint": "This hero is a marksman with a powerful ultimate.",
+                    "explanation": "Masha's ultimate ability 'Blazing Duet' allows her to deal damage in a wide area."
                 },
                 {
-                    "text": "Question 4: What is always coming but never arrives?",
+                    "text": "Question 4: What is the cooldown of the Retribution spell at max level?",
                     "choices": [
-                        {"text": "Tomorrow", "is_correct": True},
-                        {"text": "Today", "is_correct": False},
-                        {"text": "Time", "is_correct": False},
-                        {"text": "Future", "is_correct": False},
-                    ]
+                        {"text": "30 seconds", "is_correct": False},
+                        {"text": "45 seconds", "is_correct": False},
+                        {"text": "20 seconds", "is_correct": True},
+                        {"text": "60 seconds", "is_correct": False},
+                    ],
+                    "hint": "Retribution is used primarily by junglers.",
+                    "explanation": "The cooldown of Retribution at max level is 20 seconds."
                 },
                 {
-                    "text": "Question 5: What gets wetter and wetter the more it dries?",
+                    "text": "Question 5: Which item grants additional attack speed?",
                     "choices": [
-                        {"text": "A towel", "is_correct": True},
-                        {"text": "A sponge", "is_correct": False},
-                        {"text": "Clothes", "is_correct": False},
-                        {"text": "Hair", "is_correct": False},
-                    ]
+                        {"text": "Berserker's Fury", "is_correct": False},
+                        {"text": "Windtalker", "is_correct": True},
+                        {"text": "Blade of Despair", "is_correct": False},
+                        {"text": "Endless Battle", "is_correct": False},
+                    ],
+                    "hint": "This item is commonly used by marksmen.",
+                    "explanation": "Windtalker grants additional attack speed and critical chance."
                 },
                 {
-                    "text": "Question 6: What building has the most stories?",
+                    "text": "Question 6: Which hero can create a clone of themselves?",
                     "choices": [
-                        {"text": "A library", "is_correct": True},
-                        {"text": "A skyscraper", "is_correct": False},
-                        {"text": "Empire State", "is_correct": False},
-                        {"text": "Burj Khalifa", "is_correct": False},
-                    ]
+                        {"text": "Aldous", "is_correct": False},
+                        {"text": "Lancelot", "is_correct": False},
+                        {"text": "Miya", "is_correct": False},
+                        {"text": "Minsitthar", "is_correct": True},
+                    ],
+                    "hint": "This hero can confuse enemies with their clone.",
+                    "explanation": "Minsitthar can create a clone of themselves to confuse enemies."
                 },
                 {
-                    "text": "Question 7: What has branches and leaves but no bark?",
+                    "text": "Question 7: What is the primary role of a support hero?",
                     "choices": [
-                        {"text": "A library book", "is_correct": True},
-                        {"text": "A bush", "is_correct": False},
-                        {"text": "A plant", "is_correct": False},
-                        {"text": "A vine", "is_correct": False},
-                    ]
+                        {"text": "Tank", "is_correct": False},
+                        {"text": "Damage dealer", "is_correct": False},
+                        {"text": "Heal and assist allies", "is_correct": True},
+                        {"text": "Crowd control", "is_correct": False},
+                    ],
+                    "hint": "These heroes help their teammates in various ways.",
+                    "explanation": "Support heroes are designed to heal and assist their allies."
                 },
                 {
-                    "text": "Question 8: What invention lets you look right through a wall?",
+                    "text": "Question 8: Which hero is known for their ultimate ability 'Demon Hunter'?",
                     "choices": [
-                        {"text": "A window", "is_correct": True},
-                        {"text": "X-ray", "is_correct": False},
-                        {"text": "Camera", "is_correct": False},
-                        {"text": "Telescope", "is_correct": False},
-                    ]
+                        {"text": "Aldous", "is_correct": False},
+                        {"text": "Kagura", "is_correct": False},
+                        {"text": "Granger", "is_correct": True},
+                        {"text": "Chou", "is_correct": False},
+                    ],
+                    "hint": "This hero is a marksman with high burst damage.",
+                    "explanation": "Granger's ultimate ability 'Demon Hunter' allows him to deal massive damage to enemies."
                 },
                 {
-                    "text": "Question 9: What kind of coat is always wet when you put it on?",
+                    "text": "Question 9: What is the role of a jungler in MLBB?",
                     "choices": [
-                        {"text": "A coat of paint", "is_correct": True},
-                        {"text": "A raincoat", "is_correct": False},
-                        {"text": "A winter coat", "is_correct": False},
-                        {"text": "A fur coat", "is_correct": False},
-                    ]
+                        {"text": "Farm jungle monsters and gank lanes", "is_correct": True},
+                        {"text": "Stay in lane and farm minions", "is_correct": False},
+                        {"text": "Support allies", "is_correct": False},
+                        {"text": "Tank damage", "is_correct": False},
+                    ],
+                    "hint": "This role is crucial for gaining gold and experience.",
+                    "explanation": "Junglers farm jungle monsters and gank lanes to help their teammates secure kills and objectives."
                 },
                 {
-                    "text": "Question 10: What has keys that open no doors, space but no room, and you can enter but not go in?",
+                    "text": "Question 10: Which item is essential for mages to increase their spell power?",
                     "choices": [
-                        {"text": "A keyboard", "is_correct": True},
-                        {"text": "A phone", "is_correct": False},
-                        {"text": "A computer", "is_correct": False},
-                        {"text": "A calculator", "is_correct": False},
-                    ]
+                        {"text": "Bloodlust Axe", "is_correct": False},
+                        {"text": "Clock of Destiny", "is_correct": True},
+                        {"text": "Blade of Despair", "is_correct": False},
+                        {"text": "Holy Crystal", "is_correct": False},
+                    ],
+                    "hint": "This item provides both mana and spell power.",
+                    "explanation": "Clock of Destiny is essential for mages as it increases their spell power and provides mana."
                 },
             ],
             hard: [
                 {
-                    "text": "Question 1: I am an odd number. Take away a letter and I become even. What number am I?",
+                    "text": "Question 1: Which hero has the ability 'Soul Resonance'?",
                     "choices": [
-                        {"text": "Seven", "is_correct": True},
-                        {"text": "Three", "is_correct": False},
-                        {"text": "Five", "is_correct": False},
-                        {"text": "Nine", "is_correct": False},
-                    ]
+                        {"text": "Lunox", "is_correct": True},
+                        {"text": "Kagura", "is_correct": False},
+                        {"text": "Harith", "is_correct": False},
+                        {"text": "Esmeralda", "is_correct": False},
+                    ],
+                    "hint": "This hero can switch between light and dark forms.",
+                    "explanation": "Lunox has the ability 'Soul Resonance' in her dark form."
                 },
                 {
-                    "text": "Question 2: What starts with 'e', ends with 'e', but only contains one letter?",
+                    "text": "Question 2: What is the cooldown of the Retribution spell at max level?",
                     "choices": [
-                        {"text": "Envelope", "is_correct": True},
-                        {"text": "Eye", "is_correct": False},
-                        {"text": "Everyone", "is_correct": False},
-                        {"text": "Exercise", "is_correct": False},
-                    ]
+                        {"text": "30 seconds", "is_correct": False},
+                        {"text": "45 seconds", "is_correct": False},
+                        {"text": "20 seconds", "is_correct": True},
+                        {"text": "60 seconds", "is_correct": False},
+                    ],
+                    "hint": "Retribution is used primarily by junglers.",
+                    "explanation": "The cooldown of Retribution at max level is 20 seconds."
                 },
                 {
-                    "text": "Question 3: A girl has as many brothers as sisters, but each brother has only half as many brothers as sisters. How many brothers and sisters are there?",
+                    "text": "Question 3: Which hero can absorb damage with their ultimate ability?",
                     "choices": [
-                        {"text": "4 sisters, 3 brothers", "is_correct": True},
-                        {"text": "3 sisters, 3 brothers", "is_correct": False},
-                        {"text": "4 sisters, 4 brothers", "is_correct": False},
-                        {"text": "3 sisters, 4 brothers", "is_correct": False},
-                    ]
+                        {"text": "Aldous", "is_correct": False},
+                        {"text": "Gord", "is_correct": False},
+                        {"text": "Leomord", "is_correct": True},
+                        {"text": "Chou", "is_correct": False},
+                    ],
+                    "hint": "This hero can transform into a powerful mount.",
+                    "explanation": "Leomord can absorb damage while mounted and deal significant damage."
                 },
                 {
-                    "text": "Question 4: Which word in the dictionary is spelled incorrectly?",
+                    "text": "Question 4: What is the primary role of a mage in MLBB?",
                     "choices": [
-                        {"text": "Incorrectly", "is_correct": True},
-                        {"text": "Misspelled", "is_correct": False},
-                        {"text": "Wrong", "is_correct": False},
-                        {"text": "Error", "is_correct": False},
-                    ]
+                        {"text": "Tank", "is_correct": False},
+                        {"text": "Damage dealer with spells", "is_correct": True},
+                        {"text": "Support", "is_correct": False},
+                        {"text": "Crowd control", "is_correct": False},
+                    ],
+                    "hint": "These heroes deal damage using their abilities.",
+                    "explanation": "Mages are primarily damage dealers who use spells to inflict damage."
                 },
                 {
-                    "text": "Question 5: What can you catch but not throw?",
+                    "text": "Question 5: Which item is essential for tanks to increase their durability?",
                     "choices": [
-                        {"text": "Your breath", "is_correct": True},
-                        {"text": "A cold", "is_correct": False},
-                        {"text": "Time", "is_correct": False},
-                        {"text": "Light", "is_correct": False},
-                    ]
+                        {"text": "Oracle", "is_correct": True},
+                        {"text": "Blade of Despair", "is_correct": False},
+                        {"text": "Holy Crystal", "is_correct": False},
+                        {"text": "Endless Battle", "is_correct": False},
+                    ],
+                    "hint": "This item provides health and magic resistance.",
+                    "explanation": "Oracle is essential for tanks as it increases their durability and provides magic resistance."
                 },
                 {
-                    "text": "Question 6: If you drop a yellow hat in the Red Sea, what does it become?",
+                    "text": "Question 6: Which hero is known for their crowd control abilities?",
                     "choices": [
-                        {"text": "Wet", "is_correct": True},
-                        {"text": "Red", "is_correct": False},
-                        {"text": "Orange", "is_correct": False},
-                        {"text": "Lost", "is_correct": False},
-                    ]
+                        {"text": "Layla", "is_correct": False},
+                        {"text": "Kagura", "is_correct": True},
+                        {"text": "Miya", "is_correct": False},
+                        {"text": "Fanny", "is_correct": False},
+                    ],
+                    "hint": "This hero can control the battlefield with her skills.",
+                    "explanation": "Kagura has crowd control abilities that can disrupt enemy movements."
                 },
                 {
-                    "text": "Question 7: What has one head, one foot, and four legs?",
+                    "text": "Question 7: What is the role of a marksman in MLBB?",
                     "choices": [
-                        {"text": "A bed", "is_correct": True},
-                        {"text": "A chair", "is_correct": False},
-                        {"text": "A table", "is_correct": False},
-                        {"text": "A desk", "is_correct": False},
-                    ]
+                        {"text": "Tank", "is_correct": False},
+                        {"text": "Damage dealer", "is_correct": True},
+                        {"text": "Support", "is_correct": False},
+                        {"text": "Crowd control", "is_correct": False},
+                    ],
+                    "hint": "These heroes deal damage from a distance.",
+                    "explanation": "Marksmen are ranged heroes that deal damage from a distance."
                 },
                 {
-                    "text": "Question 8: What belongs to you but others use it more than you do?",
+                    "text": "Question 8: Which hero can create a clone of themselves?",
                     "choices": [
-                        {"text": "Your name", "is_correct": True},
-                        {"text": "Your phone", "is_correct": False},
-                        {"text": "Your car", "is_correct": False},
-                        {"text": "Your time", "is_correct": False},
-                    ]
+                        {"text": "Aldous", "is_correct": False},
+                        {"text": "Lancelot", "is_correct": False},
+                        {"text": "Miya", "is_correct": False},
+                        {"text": "Minsitthar", "is_correct": True},
+                    ],
+                    "hint": "This hero can confuse enemies with their clone.",
+                    "explanation": "Minsitthar can create a clone of themselves to confuse enemies."
                 },
                 {
-                    "text": "Question 9: What is black when clean and white when dirty?",
+                    "text": "Question 9: What is the cooldown of the ultimate ability 'Flicker'?",
                     "choices": [
-                        {"text": "A chalkboard", "is_correct": True},
-                        {"text": "A tire", "is_correct": False},
-                        {"text": "A shoe", "is_correct": False},
-                        {"text": "A road", "is_correct": False},
-                    ]
+                        {"text": "120 seconds", "is_correct": True},
+                        {"text": "90 seconds", "is_correct": False},
+                        {"text": "60 seconds", "is_correct": False},
+                        {"text": "150 seconds", "is_correct": False},
+                    ],
+                    "hint": "This ability allows heroes to reposition quickly.",
+                    "explanation": "'Flicker' has a cooldown of 120 seconds, allowing heroes to escape or engage quickly."
                 },
                 {
-                    "text": "Question 10: What goes up white and comes down yellow and white?",
+                    "text": "Question 10: Which item is essential for assassins to increase their burst damage?",
                     "choices": [
-                        {"text": "An egg", "is_correct": True},
-                        {"text": "A flower", "is_correct": False},
-                        {"text": "A bird", "is_correct": False},
-                        {"text": "A cloud", "is_correct": False},
-                    ]
+                        {"text": "Bloodlust Axe", "is_correct": False},
+                        {"text": "Blade of Despair", "is_correct": True},
+                        {"text": "Clock of Destiny", "is_correct": False},
+                        {"text": "Holy Crystal", "is_correct": False},
+                    ],
+                    "hint": "This item provides a significant boost to physical attack.",
+                    "explanation": "Blade of Despair is essential for assassins as it increases their burst damage significantly."
                 },
             ],
             extreme: [
                 {
-                "text": "Question 1: Two fathers and two sons go fishing together. They each catch a fish and bring home one each. Yet there are only three fish. How is this possible?",
-                "choices": [
-                    {"text": "They are grandfather, father, and son", "is_correct": True},
-                    {"text": "One fish escaped", "is_correct": False},
-                    {"text": "They shared one fish", "is_correct": False},
-                    {"text": "They lost one fish", "is_correct": False}
-                ]
+                    "text": "Question 1: Which hero can summon a giant mecha?",
+                    "choices": [
+                        {"text": "Johnson", "is_correct": False},
+                        {"text": "X.Borg", "is_correct": True},
+                        {"text": "Alpha", "is_correct": False},
+                        {"text": "Granger", "is_correct": False},
+                    ],
+                    "hint": "This hero is a fighter with fire-based abilities.",
+                    "explanation": "X.Borg can summon a giant mecha as part of his ultimate ability."
                 },
                 {
-                "text": "Question 2: What can fill a room but takes up no space?",
-                "choices": [
-                    {"text": "Light", "is_correct": True},
-                    {"text": "Air", "is_correct": False},
-                    {"text": "Sound", "is_correct": False},
-                    {"text": "Dark", "is_correct": False}
-                ]
+                    "text": "Question 2: What is the name of the item that reduces cooldowns?",
+                    "choices": [
+                        {"text": "Blade of Despair", "is_correct": False},
+                        {"text": "Enchanted Talisman", "is_correct": True},
+                        {"text": "Endless Battle", "is_correct": False},
+                        {"text": "Thunder Belt", "is_correct": False},
+                    ],
+                    "hint": "This item is commonly used by mages and supports.",
+                    "explanation": "Enchanted Talisman reduces cooldowns and provides mana regeneration."
                 },
                 {
-                "text": "Question 3: If you have me, you want to share me. If you share me, you haven't got me. What am I?",
-                "choices": [
-                    {"text": "A secret", "is_correct": True},
-                    {"text": "Love", "is_correct": False},
-                    {"text": "Money", "is_correct": False},
-                    {"text": "Time", "is_correct": False}
-                ]
+                    "text": "Question 3: Which hero has the ability 'Tempest of Blades'?",
+                    "choices": [
+                        {"text": "Hayabusa", "is_correct": True},
+                        {"text": "Lancelot", "is_correct": False},
+                        {"text": "Gusion", "is_correct": False},
+                        {"text": "Aldous", "is_correct": False},
+                    ],
+                    "hint": "This hero is an assassin known for high mobility.",
+                    "explanation": "Hayabusa's ultimate ability 'Tempest of Blades' allows him to deal damage to multiple enemies."
                 },
                 {
-                "text": "Question 4: A man is looking at a photograph of someone. His friend asks who it is. The man replies, 'Brothers and sisters, I have none. But that man's father is my father's son.' Who was in the photograph?",
-                "choices": [
-                    {"text": "His son", "is_correct": True},
-                    {"text": "His brother", "is_correct": False},
-                    {"text": "His father", "is_correct": False},
-                    {"text": "His friend", "is_correct": False}
-                ]
+                    "text": "Question 4: What is the primary role of a fighter in MLBB?",
+                    "choices": [
+                        {"text": "Tank", "is_correct": False},
+                        {"text": "Damage dealer with durability", "is_correct": True},
+                        {"text": "Support", "is_correct": False},
+                        {"text": "Crowd control", "is_correct": False},
+                    ],
+                    "hint": "These heroes can deal damage while also taking hits.",
+                    "explanation": "Fighters are versatile heroes that can deal damage while being durable."
                 },
                 {
-                "text": "Question 5: What has a heart that doesn’t beat?",
-                "choices": [
-                    {"text": "An artichoke", "is_correct": True},
-                    {"text": "A clock", "is_correct": False},
-                    {"text": "A tree", "is_correct": False},
-                    {"text": "A stone", "is_correct": False}
-                ]
+                    "text": "Question 5: Which item grants lifesteal?",
+                    "choices": [
+                        {"text": "Bloodlust Axe", "is_correct": True},
+                        {"text": "Blade of Despair", "is_correct": False},
+                        {"text": "Holy Crystal", "is_correct": False},
+                        {"text": "Oracle", "is_correct": False},
+                    ],
+                    "hint": "This item is essential for sustaining in fights.",
+                    "explanation": "Bloodlust Axe grants lifesteal, allowing heroes to recover health from damage dealt."
                 },
                 {
-                "text": "Question 6: You see a house with two doors. One door leads to certain death, and the other leads to freedom. There are two guards. One always tells the truth, and one always lies. You can ask one question to one guard to find the correct door. What question do you ask?",
-                "choices": [
-                    {"text": "If I asked the other guard which door leads to freedom, which one would they say?", "is_correct": True},
-                    {"text": "Which door leads to freedom?", "is_correct": False},
-                    {"text": "Which guard is telling the truth?", "is_correct": False},
-                    {"text": "Can you point to the death door?", "is_correct": False}
-                ]
+                    "text": "Question 6: Which hero can manipulate time?",
+                    "choices": [
+                        {"text": "Harith", "is_correct": True},
+                        {"text": "Lunox", "is_correct": False},
+                        {"text": "Kagura", "is_correct": False},
+                        {"text": "Gusion", "is_correct": False},
+                    ],
+                    "hint": "This hero can speed up or slow down time.",
+                    "explanation": "Harith has the ability to manipulate time, allowing him to dodge attacks and reposition."
                 },
                 {
-                "text": "Question 7: You have a bucket that holds exactly 3 gallons of water and another bucket that holds exactly 5 gallons of water. How can you measure exactly 4 gallons of water?",
-                "choices": [
-                    {"text": "Fill the 5-gallon bucket, pour it into the 3-gallon bucket until full, and you'll be left with 4 gallons in the 5-gallon bucket.", "is_correct": True},
-                    {"text": "Fill the 3-gallon bucket, then fill the 5-gallon bucket", "is_correct": False},
-                    {"text": "Fill the 5-gallon bucket twice", "is_correct": False},
-                    {"text": "Use a measuring cup", "is_correct": False}
-                ]
+                    "text": "Question 7: What is the cooldown of the ultimate ability 'Demon Slayer'?",
+                    "choices": [
+                        {"text": "60 seconds", "is_correct": False},
+                        {"text": "90 seconds", "is_correct": True},
+                        {"text": "120 seconds", "is_correct": False},
+                        {"text": "150 seconds", "is_correct": False},
+                    ],
+                    "hint": "This ability deals massive damage to a single target.",
+                    "explanation": "'Demon Slayer' has a cooldown of 90 seconds, allowing Aldous to deal significant damage."
                 },
                 {
-                "text": "Question 8: A man is pushing his car along a road when he comes to a hotel. He shouts, 'I’m bankrupt!' Why?",
-                "choices": [
-                    {"text": "He is playing Monopoly", "is_correct": True},
-                    {"text": "He is broke and lost all his money", "is_correct": False},
-                    {"text": "He owes the hotel money", "is_correct": False},
-                    {"text": "He lost his job", "is_correct": False}
-                ]
+                    "text": "Question 8: Which item is essential for increasing magic power?",
+                    "choices": [
+                        {"text": "Clock of Destiny", "is_correct": True},
+                        {"text": "Blade of Despair", "is_correct": False},
+                        {"text": "Endless Battle", "is_correct": False},
+                        {"text": "Oracle", "is_correct": False},
+                    ],
+                    "hint": "This item provides both mana and spell power.",
+                    "explanation": "Clock of Destiny is essential for mages as it increases their spell power and provides mana."
                 },
                 {
-                "text": "Question 9: You’re in a room with two doors. One leads to freedom and the other leads to certain death. You don’t know which is which. The guards at each door will either always tell the truth or always lie. What question can you ask to find the door to freedom?",
-                "choices": [
-                    {"text": "Ask one guard, 'What would the other guard say if I asked which door leads to freedom?'", "is_correct": True},
-                    {"text": "Ask both guards to point to the correct door", "is_correct": False},
-                    {"text": "Ask both guards which door they would choose", "is_correct": False},
-                    {"text": "Ask one guard if the door to the left leads to freedom", "is_correct": False}
-                ]
+                    "text": "Question 9: Which hero is known for their ability to heal themselves?",
+                    "choices": [
+                        {"text": "Aldous", "is_correct": False},
+                        {"text": "Lunox", "is_correct": True},
+                        {"text": "Kagura", "is_correct": False},
+                        {"text": "Gord", "is_correct": False},
+                    ],
+                    "hint": "This hero can switch between light and dark forms.",
+                    "explanation": "Lunox can heal herself using her abilities while switching forms."
                 },
                 {
-                "text": "Question 10: A father and son are in a car accident. The father dies, and the son is taken to the hospital. The surgeon looks at him and says, 'I can't operate on him; he's my son.' How is this possible?",
-                "choices": [
-                    {"text": "The surgeon is his mother", "is_correct": True},
-                    {"text": "The surgeon is his uncle", "is_correct": False},
-                    {"text": "The surgeon is his brother", "is_correct": False},
-                    {"text": "The surgeon is a family friend", "is_correct": False}
-                ]
-                }
+                    "text": "Question 10: What is the primary objective of the Lord in MLBB?",
+                    "choices": [
+                        {"text": "Destroy turrets", "is_correct": False},
+                        {"text": "Assist in pushing lanes", "is_correct": True},
+                        {"text": "Kill enemy heroes", "is_correct": False},
+                        {"text": "Collect gold", "is_correct": False},
+                    ],
+                    "hint": "This powerful monster can help turn the tide of battle.",
+                    "explanation": "The Lord assists in pushing lanes and can help secure objectives for the team."
+                },
             ]
-                    }
+        }
 
         # Add questions and choices to the quiz for each difficulty level
         for difficulty, questions in questions_data.items():
             quiz = Quiz.objects.create(
-                title=f"Mind Challenging - {difficulty.level}",
-                category=mind_challenges,
+                title=f"MLBB Quiz - {difficulty.level}",
+                category=mlbb_category,
                 difficulty=difficulty
             )
             for question_data in questions:
@@ -399,41 +480,21 @@ class Command(BaseCommand):
                     quiz=quiz,
                     text=question_data["text"],
                     question_type="multiple_choice",
-                    time_limit=50,  # Set time limit to 50 seconds for riddles
-                    hint="Think carefully about the riddle.",
-                    explanation="The answer is based on the riddle's logic."
+                    time_limit=30,  # Set time limit to 30 seconds for MLBB questions
+                    hint=question_data.get("hint", "No hint available."),
+                    explanation=question_data.get("explanation", "No explanation available.")
                 )
                 
-                # Get the choices and ensure the correct answer is not at position A
+                # Shuffle choices to randomize their order
                 choices = question_data["choices"].copy()
+                random.shuffle(choices)
                 
-                # Find the correct answer
-                correct_choice = next(choice for choice in choices if choice["is_correct"])
-                incorrect_choices = [choice for choice in choices if not choice["is_correct"]]
-                
-                # Shuffle incorrect choices
-                random.shuffle(incorrect_choices)
-                
-                # Create the final choice list making sure correct answer is not in first position
-                final_choices = [incorrect_choices[0]]  # First position is always incorrect
-                
-                # Insert correct choice at a random position after the first
-                correct_position = random.randint(1, 3)
-                final_choices.insert(correct_position, correct_choice)
-                
-                # Fill the remaining positions with incorrect choices
-                remaining_incorrect = incorrect_choices[1:]
-                for i in range(1, 4):
-                    if i != correct_position:
-                        if remaining_incorrect:
-                            final_choices.insert(i, remaining_incorrect.pop(0))
-                
-                # Create the choices in database
-                for choice_data in final_choices:
+                # Create the choices in the database
+                for choice_data in choices:
                     Choice.objects.create(
                         question=question,
                         text=choice_data["text"],
                         is_correct=choice_data["is_correct"]
                     )
         
-        self.stdout.write(self.style.SUCCESS('Successfully added riddle quizzes with 10 questions for each difficulty level.'))
+        self.stdout.write(self.style.SUCCESS('Successfully added MLBB quizzes with 10 questions for each difficulty level.'))
